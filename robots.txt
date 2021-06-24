@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /dashboard
+Disallow: /login
+Disallow: /register
+Disallow: /password
+Sitemap: https://tieuthuyet.vn/sitemap.xml
