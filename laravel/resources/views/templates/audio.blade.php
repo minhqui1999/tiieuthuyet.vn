@@ -1,6 +1,6 @@
 <div class="container" id="truyen-slide">
     <div class="list list-thumbnail col-xs-12">
-        <div class="title-list"><h2><a href="{{route('danhsach.truyenfull')}}" title="Truyện full">Truyện Audio</a></h2><span class="glyphicon glyphicon-headphones"></span></a></div>
+        <div class="title-list"><h2><a href="{{route('danhsach.truyenaudio')}}" title="Truyện Audio">Truyện Audio</a></h2><span class="glyphicon glyphicon-headphones"></span></a></div>
         <div class="row">
             @if($stories)
                 @foreach($stories as $story)
@@ -8,7 +8,7 @@
                     $chapter = $story->chapters()->orderBy('created_at', 'DESC')->first();
                     ?>
                     <div class="col-xs-4 col-sm-3 col-md-2">
-                        <a href="{{route('story.show', $story->alias)}}" title="{{$story->name}}">
+                        <a href="{{route('audio.show', $story->alias)}}" title="{{$story->name}}">
                             <img src="{{url($story->image)}}" alt="{{$story->name}}">
                             @if($story->view >= 1000)
                             <span class="icon icon-hot" style="top:6px; right:8%;"></span>

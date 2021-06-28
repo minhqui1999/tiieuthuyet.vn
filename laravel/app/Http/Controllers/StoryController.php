@@ -264,6 +264,22 @@ class StoryController extends Controller
         return view('list_story', compact('data', 'breadcrumb'));
     }
 
+    // Truyện audio
+    public function getListAudioStory()
+    {
+        $stories = Story::where([['status', 1],['show',1],['description',1]])->orderBy('updated_at', 'DESC')->paginate(25);
+        if(!$stories) abort(404);
+         $data     = [
+            'title'  => 'Danh sách truyện audio',
+             'description' => 'Danh sách truyện audio.',
+             'keyword' => 'truyen audio, audio, truyện audio, truyen audio, audio, audio',
+            'alias'  => route('danhsach.truyenaudio'),
+            'stories' => $stories,
+        ];
+        $breadcrumb = [[route('danhsach.truyenaudio'), 'Danh sách truyện audio']];
+        return view('list_story', compact('data', 'breadcrumb'));
+    }
+
     // Truyện theo the loại
     public function getListByCategory($alias, Request $r)
     {
@@ -320,24 +336,28 @@ class StoryController extends Controller
     // Hiển thị truyện
     public function showInfoStory($alias, Request $r)
     {
-        $story = Story::where('alias', $alias)->first();
-        if(!$story) abort(404);
-        if(Auth::user() && !Auth::user()->isAdmin() && $story->user_id != Auth::user()->id)
-        {
-            $story = Story::where([['alias', $alias],['show','=',1]])->first();
-        }
-        if(!$story) abort(404);
-        $breadcrumb = [[route('story.show', $story->alias), $story->name]];
-        if(!$r->session()->has('viewStory' . $story->id)) {
-            $story->view = $story->view + 1;
-            $story->timestamps = false;
-            $story->save();
-            $r->session()->put('viewStory' . $story->id, true);
-        }
-        $comments = Comment_story::where('story_id','=',$story->id)->orderBy('id','desc')->paginate(4);
-        return view('show_story', compact('story','breadcrumb','comments'));
+       
+            $story = Story::where('alias', $alias)->first();
+            if(!$story) abort(404);
+            if(Auth::user() && !Auth::user()->isAdmin() && $story->user_id != Auth::user()->id)
+            {
+                $story = Story::where([['alias', $alias],['show','=',1]])->first();
+            }
+            if(!$story) abort(404);
+            $breadcrumb = [[route('story.show', $story->alias), $story->name]];
+            if(!$r->session()->has('viewStory' . $story->id)) {
+                $story->view = $story->view + 1;
+                $story->timestamps = false;
+                $story->save();
+                $r->session()->put('viewStory' . $story->id, true);
+            }
+            $comments = Comment_story::where('story_id','=',$story->id)->orderBy('id','desc')->paginate(4);
+            if($story->description=='1')
+            {
+                return view('show_story_audio', compact('story','breadcrumb','comments'));
+            }
+                return view('show_story', compact('story','breadcrumb','comments'));
     }
-
     // Hiển thị chương truyện
     public function showInfoChapter($alias, $aliasChapter, Request $r)
     {

@@ -91,6 +91,7 @@ Route::group(['middleware' => 'web'], function () {
         Route::get('truyen-hot', ['as' => 'danhsach.truyenhot', 'uses' => 'StoryController@getListHotStory']);
         Route::get('truyen-moi', ['as' => 'danhsach.truyenmoi', 'uses' => 'StoryController@getListNewStory']);
         Route::get('truyen-full', ['as' => 'danhsach.truyenfull', 'uses' => 'StoryController@getListFullStory']);
+        Route::get('truyen-audio', ['as' => 'danhsach.truyenaudio', 'uses' => 'StoryController@getListAudioStory']);
     });
     Route::get('search', ['as' => 'danhsach.search', 'uses' => 'StoryController@getListBySearch']);
     // API
@@ -101,5 +102,6 @@ Route::group(['middleware' => 'web'], function () {
     });
     //Show
     Route::get('{story}', ['as' => 'story.show', 'uses' => 'StoryController@showInfoStory']);
+    Route::get('{storys}', ['as' => 'audio.show', 'uses' => 'StoryController@showInfoStoryaudio']);
     Route::get('{story}/{chapter}', ['as' => 'chapter.show', 'uses' => 'StoryController@showInfoChapter']);
 });

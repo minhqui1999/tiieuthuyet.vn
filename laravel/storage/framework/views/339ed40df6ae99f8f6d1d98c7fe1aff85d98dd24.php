@@ -1,40 +1,39 @@
-@extends('layouts.app')
-@section('title', $story->name . ' | TieuThuyet.VN')
-@section('seo')
-    <meta name="keywords" content="{{\App\Option::getvalue('keyword')}}" />
-    <meta name="description" content="{!! substr(tanvo($story->content),0,250) !!}" />
+<?php $__env->startSection('title', $story->name . ' | TieuThuyet.VN'); ?>
+<?php $__env->startSection('seo'); ?>
+    <meta name="keywords" content="<?php echo e(\App\Option::getvalue('keyword')); ?>" />
+    <meta name="description" content="<?php echo substr(tanvo($story->content),0,250); ?>" />
     <meta name='ROBOTS' content='INDEX, FOLLOW' />
     <meta property="og:type" content="book" />
-    <meta property="og:url" content="https://tieuthuyet.vn/{{$story->alias}}" />
-    <meta property="og:site_name" content="{{$story->name}}" />
-    <meta property="og:title" content="{{$story->name}} | TieuThuyet.VN" />
+    <meta property="og:url" content="https://tieuthuyet.vn/<?php echo e($story->alias); ?>" />
+    <meta property="og:site_name" content="<?php echo e($story->name); ?>" />
+    <meta property="og:title" content="<?php echo e($story->name); ?> | TieuThuyet.VN" />
     <meta property="og:locale" content="vi_VN" />
-    <meta property="og:image" content="{{ url($story->image) }}" />
-    <meta property="og:description" content="{!! substr(tanvo($story->content),0,325) !!}" />
-    <link rel="canonical" href="https://tieuthuyet.vn/{{$story->alias}}" />
-    <link href="https://tieuthuyet.vn/{{$story->alias}}" hreflang="vi-vn" rel="alternate" />
-    <link data-page-subject="true" href="{{ url($story->image) }}" rel="image_src" />
+    <meta property="og:image" content="<?php echo e(url($story->image)); ?>" />
+    <meta property="og:description" content="<?php echo substr(tanvo($story->content),0,325); ?>" />
+    <link rel="canonical" href="https://tieuthuyet.vn/<?php echo e($story->alias); ?>" />
+    <link href="https://tieuthuyet.vn/<?php echo e($story->alias); ?>" hreflang="vi-vn" rel="alternate" />
+    <link data-page-subject="true" href="<?php echo e(url($story->image)); ?>" rel="image_src" />
     <script type="application/ld+json"> 
     { 
         "@context":"https://schema.org", 
         "@type":"Book", 
-        "name": "{{$story->name}}", 
-        "alternateName": "{{$story->name}}", 
-        "url":"https://tieuthuyet.vn/{{$story->alias}}",
-        "image" : "{{ url($story->image) }}",
-        "author": [{!! get_author($story->authors) !!}],
+        "name": "<?php echo e($story->name); ?>", 
+        "alternateName": "<?php echo e($story->name); ?>", 
+        "url":"https://tieuthuyet.vn/<?php echo e($story->alias); ?>",
+        "image" : "<?php echo e(url($story->image)); ?>",
+        "author": [<?php echo get_author($story->authors); ?>],
         "publisher": {
             "@type": "Person",
-            "name": "{{$story->user->name}}"
+            "name": "<?php echo e($story->user->name); ?>"
         },
-        "description": "{!! substr(tanvo($story->content),0,250) !!}",
-        "about": [{!!  get_catory($story->categories) !!}]
+        "description": "<?php echo substr(tanvo($story->content),0,250); ?>",
+        "about": [<?php echo get_catory($story->categories); ?>]
     } 
     </script>
-@endsection
-@section('breadcrumb', showBreadcrumb($breadcrumb))
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('breadcrumb', showBreadcrumb($breadcrumb)); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <script async defer crossorigin="anonymous" src="https://connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v10.0&appId=764582287768925&autoLogAppEvents=1" nonce="QKJ7SiB8"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
@@ -51,11 +50,11 @@
             function binhLuan($nd){
                 $.ajax({
                     type:'POST',
-                    url:'{{ route("xu-ly-binh-luan") }}',
+                    url:'<?php echo e(route("xu-ly-binh-luan")); ?>',
                     data:
                     {
                     _token : '<?php echo csrf_token() ?>',
-                    story_id: {{$story->id}},
+                    story_id: <?php echo e($story->id); ?>,
                     noi_dung: $nd
                     },
                     success:function(data) {
@@ -74,7 +73,7 @@
                     url: '/get-comment-story?page='+page,
                     method:"GET",
                     data:{
-                        story_id: {{$story->id}},
+                        story_id: <?php echo e($story->id); ?>,
                         _token : '<?php echo csrf_token() ?>'
                     },
                     success:function(data){
@@ -129,6 +128,9 @@
 				}
 			}
     </script>
+    <?php
+$link = "";
+?>
     <div class="container" id="truyen">
         <div class="col-xs-12 col-sm-12 col-md-9 col-truyen-main">
             <div class="col-xs-12 col-info-desc" itemscope="" itemtype="http://schema.org/Book">
@@ -136,46 +138,55 @@
                 <div class="col-xs-12 col-sm-4 col-md-4 info-holder">
                     <div class="books">
                         <div class="book">
-                            <img src="{{ url($story->image) }}" alt="{{ $story->name }}" itemprop="image">
+                            <img src="<?php echo e(url($story->image)); ?>" alt="<?php echo e($story->name); ?>" itemprop="image">
                         </div>
                     </div>
                     <div class="info">
                         <div>
                             <h3>Tác giả:</h3>
-                            {!!  the_author($story->authors) !!}
+                            <?php echo the_author($story->authors); ?>
+
                         </div>
                         <div>
                             <h3>Thể loại:</h3>
-                            {!!  the_category($story->categories) !!}
+                            <?php echo the_category($story->categories); ?>
+
                         </div>
                         <div>
                             <h3>Lượt xem:</h3>
-                            {!!  number_format($story->view) !!}
+                            <?php echo number_format($story->view); ?>
+
                         </div>
                         <div>
-                            <h3>Người đăng:</h3> {{$story->user->name}}
+                            <h3>Người đăng:</h3> <?php echo e($story->user->name); ?>
+
                         </div>
                         <div>
-                            <h3>Trạng thái:</h3> {!! dqhStatusStoryShow($story->status) !!}
+                            <h3>Trạng thái:</h3> <?php echo dqhStatusStoryShow($story->status); ?>
+
                         </div>
-                        @if($story->source)
+                        <?php if($story->source): ?>
                         <div>
-                            <h3>Nguồn Truyện:</h3> {!! $story->source !!}
+                            <h3>Nguồn Truyện:</h3> <?php echo $story->source; ?>
+
                         </div>
-                        @endif
+                        <a href="#" title="Play video" class="play">âsasas</a>
+                        <?php endif; ?>
                         <div>
                         <div class="navbar-social pull-left">
                                 <div class="navbar-social pull-left">
-                                    <div class="fb-like" data-href="{{ route('story.show', $story->alias) }}" data-width="" data-layout="button_count" data-action="like" data-size="small" data-share="true"></div>
+                                    <div class="fb-like" data-href="<?php echo e(route('story.show', $story->alias)); ?>" data-width="" data-layout="button_count" data-action="like" data-size="small" data-share="true"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+             
                 <div class="col-xs-12 col-sm-8 col-md-8 desc">
-                    <h3 class="title" itemprop="name">{{ $story->name }}</h3>
+                    <h3 class="title" itemprop="name"><?php echo e($story->name); ?></h3>
                     <div class="desc-text desc-text-full" itemprop="description">
-                        {!!  nl2p($story->content, false) !!}
+                        <?php echo nl2p($story->content, false); ?>
+
                     </div>
                     <div class="showmore">
             					<a class="btn btn-default btn-xs" href="javascript:void(0)" title="Xem thêm">Xem thêm »</a>
@@ -189,8 +200,8 @@
                       ?>
                       <li>
                         <span class="glyphicon glyphicon-certificate"></span>
-                       <a href="{{ route('chapter.show', [$story->alias, $chapter->alias]) }}" title="{{ $story->name }} - {{ $chapter->subname }}: {{ $chapter->name }}">
-                            <span class="chapter-text">{{ $chapter->subname }}</span>: {{ $chapter->name }}
+                       <a href="<?php echo e(route('chapter.show', [$story->alias, $chapter->alias])); ?>" title="<?php echo e($story->name); ?> - <?php echo e($chapter->subname); ?>: <?php echo e($chapter->name); ?>">
+                            <span class="chapter-text"><?php echo e($chapter->subname); ?></span>: <?php echo e($chapter->name); ?>  
                         </a>
                       <?php
                           endforeach;
@@ -202,7 +213,8 @@
             </div>
 
             <div class="ads container">
-                {!! \App\Option::getvalue('ads_story') !!}
+                <?php echo \App\Option::getvalue('ads_story'); ?>
+
             </div>
 
             <div class="col-xs-12" id="list-chapter">
@@ -217,9 +229,11 @@
                     ?>
                             <li>
                                 <span class="glyphicon glyphicon-certificate"></span>
-                                <a href="{{ route('chapter.show', [$story->alias, $chapter->alias]) }}" title="{{ $story->name }} - {{ $chapter->subname }}: {{ $chapter->name }}">
-                                    <span class="chapter-text">{{ $chapter->subname }}</span>: {{ $chapter->name }}
+                                <a href="<?php echo e(route('chapter.show', [$story->alias, $chapter->alias])); ?>" title="<?php echo e($story->name); ?> - <?php echo e($chapter->subname); ?>: <?php echo e($chapter->name); ?>">
+                                    <span class="chapter-text"> <?php echo e($chapter->name); ?>
+
                                 </a>
+                             
                             </li>
                     <?php
                         if($t == 25 || $count == $c){
@@ -231,24 +245,25 @@
                         ?>
                 </div>
 
-                {{ $chapters->fragment('list-chapter')->links() }}
+                <?php echo e($chapters->fragment('list-chapter')->links()); ?>
+
 
                 </div>
             <div>
                 <div class="col-xs-12">
                     <div class="title-list"><h2>Bình luận truyện</h2></div>
                     <div class="">
-                        <button type="button" class="btn btn-info" onclick="showtt('fb','tt')" id="chapter_comment"><span class="glyphicon glyphicon-comment"></span> Tieuthuyet.vn({{$story->comment_story->count()}})</button>
+                        <button type="button" class="btn btn-info" onclick="showtt('fb','tt')" id="chapter_comment"><span class="glyphicon glyphicon-comment"></span> Tieuthuyet.vn(<?php echo e($story->comment_story->count()); ?>)</button>
                         <button type="button" class="btn btn-info" onclick="showfb('fb','tt')" id="chapter_comment"><span class="glyphicon glyphicon-comment"></span> Facebook</button>
                         <!-- <div id="fb" class="fb-comments"  data-href="http://tieuthuyet.vn" data-width="" data-numposts="5" style="display:none !important"></div> -->
-                        <div id="fb" class="fb-comments" data-href="{{ route('story.show', $story->alias) }}" data-width="100%" data-numposts="5" data-colorscheme="light" fb-xfbml-state="rendered" style="display:none !important"></div>
+                        <div id="fb" class="fb-comments" data-href="<?php echo e(route('story.show', $story->alias)); ?>" data-width="100%" data-numposts="5" data-colorscheme="light" fb-xfbml-state="rendered" style="display:none !important"></div>
                         <div id="tt" class="form-group " style="margin: 7px;display:none !important">
                             <input style="height: 53px" class="form-control" id="noi_dung" name="noi_dung" required placeholder="Nhập bình luận...">
                             <button id="binhluan" type="button" class="btn btn-primary">
                                 Bình luận
                             </button>
                             <div class="list-comment">
-                                @include('widgets.comment')
+                                <?php echo $__env->make('widgets.comment', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
                             </div>
                         </div>
                     </div>
@@ -256,10 +271,12 @@
             </div>
         </div>
         <div class="visible-md-block visible-lg-block col-md-3 text-center col-truyen-side">
-            @include('widgets.storiesByAuthor')
-            @include('widgets.hotstory')
-            {{--@include('widgets.ads')--}}
+            <?php echo $__env->make('widgets.storiesByAuthor', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+            <?php echo $__env->make('widgets.hotstory', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+            <?php /*<?php echo $__env->make('widgets.ads', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>*/ ?>
         </div>
     </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

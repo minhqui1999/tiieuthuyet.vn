@@ -129,6 +129,9 @@
 				}
 			}
     </script>
+    <?php
+$link = "";
+?>
     <div class="container" id="truyen">
         <div class="col-xs-12 col-sm-12 col-md-9 col-truyen-main">
             <div class="col-xs-12 col-info-desc" itemscope="" itemtype="http://schema.org/Book">
@@ -162,6 +165,7 @@
                         <div>
                             <h3>Nguồn Truyện:</h3> {!! $story->source !!}
                         </div>
+                        <a href="#" title="Play video" class="play">âsasas</a>
                         @endif
                         <div>
                         <div class="navbar-social pull-left">
@@ -172,6 +176,7 @@
                         </div>
                     </div>
                 </div>
+             
                 <div class="col-xs-12 col-sm-8 col-md-8 desc">
                     <h3 class="title" itemprop="name">{{ $story->name }}</h3>
                     <div class="desc-text desc-text-full" itemprop="description">
@@ -190,7 +195,7 @@
                       <li>
                         <span class="glyphicon glyphicon-certificate"></span>
                        <a href="{{ route('chapter.show', [$story->alias, $chapter->alias]) }}" title="{{ $story->name }} - {{ $chapter->subname }}: {{ $chapter->name }}">
-                            <span class="chapter-text">{{ $chapter->subname }}</span>: {{ $chapter->name }}
+                            <span class="chapter-text">{{ $chapter->subname }}</span>: {{ $chapter->name }}  
                         </a>
                       <?php
                           endforeach;
@@ -218,8 +223,9 @@
                             <li>
                                 <span class="glyphicon glyphicon-certificate"></span>
                                 <a href="{{ route('chapter.show', [$story->alias, $chapter->alias]) }}" title="{{ $story->name }} - {{ $chapter->subname }}: {{ $chapter->name }}">
-                                    <span class="chapter-text">{{ $chapter->subname }}</span>: {{ $chapter->name }}
+                                    <span class="chapter-text"> {{ $chapter->subname }}</span>: {{ $chapter->name }} 
                                 </a>
+                             
                             </li>
                     <?php
                         if($t == 25 || $count == $c){

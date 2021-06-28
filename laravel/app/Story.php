@@ -74,13 +74,13 @@ class Story extends Model
      */
     public static function getListDoneStories()
     {
-        $stories = self::where([['status', 1],['show',1]])->orderBy('updated_at', 'DESC')->skip(0)->take(12)->get();
+        $stories = self::where([['status', 1],['show',1],['description','']])->orderBy('updated_at', 'DESC')->skip(0)->take(12)->get();
         return view('templates.slide', compact('stories'));
     }
 
     public static function getListAudioStories()
     {
-        $stories = self::where([['status', 1],['show',1]])->orderBy('updated_at', 'DESC')->skip(0)->take(6)->get();
+        $stories = self::where([['status', 1],['show',1],['description',1]])->orderBy('updated_at', 'DESC')->skip(0)->take(6)->get();
         return view('templates.audio', compact('stories'));
     }
 
