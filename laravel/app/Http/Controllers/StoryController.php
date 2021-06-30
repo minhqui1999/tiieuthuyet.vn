@@ -352,7 +352,7 @@ class StoryController extends Controller
                 $r->session()->put('viewStory' . $story->id, true);
             }
             $comments = Comment_story::where('story_id','=',$story->id)->orderBy('id','desc')->paginate(4);
-            if($story->description=='1')
+            if($story->description)
             {
                 return view('show_story_audio', compact('story','breadcrumb','comments'));
             }

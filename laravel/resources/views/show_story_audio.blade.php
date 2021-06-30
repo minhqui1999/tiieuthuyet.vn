@@ -14,6 +14,7 @@
     <link rel="canonical" href="https://tieuthuyet.vn/{{$story->alias}}" />
     <link href="https://tieuthuyet.vn/{{$story->alias}}" hreflang="vi-vn" rel="alternate" />
     <link data-page-subject="true" href="{{ url($story->image) }}" rel="image_src" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script type="application/ld+json"> 
     { 
         "@context":"https://schema.org", 
@@ -35,6 +36,7 @@
 @section('breadcrumb', showBreadcrumb($breadcrumb))
 
 @section('content')
+
 <script async defer crossorigin="anonymous" src="https://connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v10.0&appId=764582287768925&autoLogAppEvents=1" nonce="QKJ7SiB8"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
@@ -94,7 +96,250 @@
                 {
                     binhLuan(document.getElementById("noi_dung").value);
                 }
-            });
+            });   
+            
+            
+        const listAudio = {
+    storyId: {{ $story->id }},
+    chapters: [
+    <?php
+                    $chapters = $story->chapters()->orderBy("id", "asc")->paginate(50);
+                    foreach($chapters as $chapter):
+                    ?>
+        { chapterId:{{ $chapter->id }}, code: `{{$chapter->content}}`, audioName:`{!!  nl2p($chapter->name, false) !!}`, thumbnail: `{{ $story->image }}` },
+    <?php endforeach;?>]                 
+};
+class AudioForm {
+    constructor(audios) {
+        this.chapterLength = audios.chapters.length;
+        // create new map
+        const audioMaps = new Map(); 
+        audioMaps.set(audios.storyId,audios.chapters.map((value, index, array) => {
+            value.index = index;
+            return value;
+        }));        
+        let that = this;
+        this.config();
+        // get list audio localStoge
+        const audioLocalStoges = localStorage.getItem("item");
+        const modeLocalStoge = localStorage.getItem("mode");
+        // convert audiolocalstoge and modelocalstoge to json
+        let jsonAudioLocalStoges = JSON.parse(audioLocalStoges);
+        if (!jsonAudioLocalStoges || jsonAudioLocalStoges.storyId != audios.storyId) {
+            jsonAudioLocalStoges = {};
+        };
+        // chapter map
+        const jsonModelLocalStoges = JSON.parse(modeLocalStoge) || {};
+        let chapterMap={};
+        if(typeof audioMaps.get(jsonAudioLocalStoges.storyId) != "undefined"){
+            chapterMap=audioMaps.get(jsonAudioLocalStoges.storyId)[jsonAudioLocalStoges.index] || {};
+        };
+        // create element
+        const audioDom = document.createElement("audio");
+        // audioDom.controls=true;
+        // get bar status
+        const barStatus = document.querySelector(".bar .status");
+        // get bar
+        const bar = document.querySelector(".bar");
+        // get btn Play
+        const btnPlay = document.querySelector(".btn-play");
+        // setText 
+        const audioName = document.querySelector(".story-name");
+        // get box thumbnail
+        const cdRom = document.querySelector(".cd-rom");
+        // hadling next()
+        const btnNext = document.querySelector(".btn-next");
+        // handle preve
+        const btnPrev = document.querySelector(".btn-prev");
+        // get dom timenow
+        const timeNow = document.querySelector(".time-now");
+        // get time all
+        const timeAll = document.querySelector(".time-all");
+        // get btnSpeaker
+        const btnSpeaker = document.querySelector(".btn-speaker");
+        // get btnRepeate
+        const btnRepeate = document.querySelector(".btn-repeat");
+        // get thumbnail
+        const thumbnail = cdRom.children[0];
+        this.thumbnail = chapterMap.thumbnail || audios.chapters[0].thumbnail;
+        thumbnail.src = this.thumbnail;
+        // create position
+        this.positionAudio = chapterMap.index || 0;
+        // set play begin
+        setPostionAudio(this.positionAudio, false);
+        // render dom
+        document.getElementById("wrapper-audio").after(audioDom);
+        // set title
+        this.audioName = chapterMap.audioName || audios.chapters[this.positionAudio].audioName;
+        audioName.innerHTML = this.audioName;
+        // set time
+        this.currentTime = jsonAudioLocalStoges.currentTime || 0;
+        audioDom.currentTime = this.currentTime;
+        // repeat 0:none,1:lặp 1 bài duy nhất, 2 lặp lại toàn bài
+        this.mode = { repeat: jsonModelLocalStoges.repeat || 0 };
+        // set mode default
+        const optionRepeat = [{ class: "none", text: "repeat" }, { class: "repeat_one", text: "repeat_one" }, { class: "repeat", text: "repeat" }];
+        btnRepeate.classList.add(optionRepeat[this.mode.repeat].class);
+        btnRepeate.textContent = optionRepeat[this.mode.repeat].text;
+        // set play
+        btnPlay.onclick = function() {
+            cdRom.classList.toggle("active");
+            if (this.classList.contains("play")) {
+                this.textContent = that.optionStauts[0];
+                this.classList.remove("play");
+                audioDom.pause();
+                return;
+            };
+            audioDom.play();
+            this.classList.add("play");
+            this.textContent = that.optionStauts[1];
+        }
+        btnNext.onclick = nextAudio;
+        btnPrev.onclick = prevAudio;
+        // on update time
+        audioDom.addEventListener("timeupdate", function(e) {
+            that.currentTime = e.target.currentTime;
+            timeNow.textContent = that.formatTime(that.currentTime);
+            barStatus.style.width = `${(that.currentTime/e.target.duration)*100}%`;
+            timeAll.textContent = that.formatTime(e.target.duration || 0);
+            // kiểm tra mod
+        });
+        // update localstoge
+        setInterval(setlocalStoge, 50000);
+        function setPostionAudio(positionAudio) {
+            // only autoplay when user click play
+            audioDom.autoplay = btnPlay.classList.contains("play");
+            // render audio new
+            that.positionAudio = positionAudio;
+            that.audioSrc = that.convertCodeToUrl(audios.chapters[positionAudio].code);
+            audioDom.src = that.audioSrc;
+            that.thumbnail = audios.chapters[positionAudio].thumbnail;
+            thumbnail.src = that.thumbnail;
+            that.audioName = audios.chapters[positionAudio].audioName;
+            audioName.innerHTML = that.audioName;
+            // check disable prev
+            btnNext.classList.remove("disable");
+            btnPrev.classList.remove("disable");
+            if (positionAudio == 0) {
+                btnPrev.classList.add("disable");
+            }
+            if (positionAudio == that.chapterLength - 1) {
+                btnNext.classList.add("disable");
+            }
+        }
+        function nextAudio() {
+            let positionAudio = that.positionAudio + 1;
+            if (positionAudio >= that.chapterLength) {
+                return;
+            }
+            setPostionAudio(positionAudio);
+        }
+        function prevAudio() {
+            let positionAudio = that.positionAudio - 1;
+            if (positionAudio < 0) {
+                return;
+            }
+            setPostionAudio(positionAudio);
+        };
+        // set time click
+        bar.addEventListener("click", function(e) {
+            let timeSet = (e.offsetX * audioDom.duration) / bar.offsetWidth;
+            audioDom.currentTime = timeSet;
+        });
+        // set speaker
+        btnSpeaker.onclick = function() {
+            let option = !audioDom.muted,
+                className = ["volume_up", "volume_off"];
+            audioDom.muted = option;
+            btnSpeaker.textContent = className[Number(option)];
+        };
+        // set repeat
+        btnRepeate.onclick = function() {
+            this.classList.remove("none", "repeat_one", "repeat");
+            that.mode.repeat++;
+            if (that.mode.repeat > 2) {
+                that.mode.repeat = 0;
+            }
+            this.textContent = optionRepeat[that.mode.repeat].text;
+            this.classList.add(optionRepeat[that.mode.repeat].class);
+            // setlocalStoge
+            localStorage.setItem("mode", JSON.stringify({ repeat: that.mode.repeat }));
+        };
+        // bar.addEventListener("drag", function(e) {
+        //     if (e.offsetX >= bar.offsetWidth) {
+        //         return barStatus.style.width = "100%";
+        //     }
+        //     if (e.offsetX <= 0) {
+        //         return barStatus.style.width = "0%"
+        //     }
+        //     barStatus.style.width = (e.offsetX / bar.offsetWidth) * 100 + "%";
+        //     timeNow.textContent = that.formatTime((e.offsetX * audioDom.duration) / bar.offsetWidth);
+        //     audioDom.pause();
+        // })
+
+        // bar.addEventListener("dragend", function(e) {
+        //     let x = e.offsetX;
+        //     if (e.offsetX >= bar.offsetWidth) {
+        //         x = bar.offsetWidth;
+        //     }
+        //     let timeSet = (x * audioDom.duration) / bar.offsetWidth;
+        //     audioDom.currentTime = timeSet;
+        //     audioDom.play();
+        // });
+        audioDom.onended = function() {
+            switch (that.mode.repeat) {
+                // phát lại bài
+                case 1:
+                    setPostionAudio(that.positionAudio);
+                    break;
+                    // lặp all
+                case 2:
+                    if (that.positionAudio == that.chapterLength - 1) {
+                        return setPostionAudio(0);
+                    }
+                    nextAudio();
+                    break;
+                default:
+                    nextAudio();
+            }
+        }
+
+        function setlocalStoge() {
+            if (!audioDom.played) {
+                return;
+            }
+            localStorage.setItem("item", JSON.stringify({
+                src: that.audioSrc,
+                name: that.audioName,
+                thumbnail: that.thumbnail,
+                currentTime: that.currentTime,
+                index: that.positionAudio,
+                storyId: audios.storyId
+            }))
+        }
+    }
+    config() {
+        this.optionStauts = [
+            "play_circle",
+            "pause_circle"
+        ];
+    }
+    convertCodeToUrl(code) {
+        return `http://docs.google.com/uc?export=open&id=${code}`
+    }
+    formatTime($time) {
+        let time = new Date($time * 1000);
+        // vì Việt Nam múi giờ 7
+        time.setHours(time.getHours() - 7);
+        return time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds()
+    };
+    
+}
+
+new AudioForm(listAudio);
+
+
+
         });
 
         function showfb(fb,tt) {
@@ -129,9 +374,150 @@
 				}
 			}
     </script>
-    <?php
-$link = "";
-?>
+    <script >
+
+     
+</script>
+ <style>
+     * {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.3;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+a {
+    text-decoration: none;
+}
+
+body {
+    background-repeat: no-repeat;
+    font-family: 'Open Sans', sans-serif;
+}
+
+#wrapper-audio {
+    width: 400px;
+    margin: 50px auto;
+    text-align: center;
+    background: linear-gradient(90deg, rgba(158, 97, 179, 1) 32%, rgba(13, 145, 172, 1) 97%);
+    padding: 20px;
+    border-radius: 5px;
+}
+
+#wrapper-audio .box-thumbnail {
+    display: inline-block;
+    width: 250px;
+    height: 250px;
+    overflow: hidden;
+    border-radius: 50%;
+    box-shadow: 0px 0px 10px #00000073;
+    animation: rolate 10s linear infinite;
+    animation-play-state: paused;
+}
+
+#wrapper-audio .box-thumbnail.active {
+    animation-play-state: running;
+}
+
+@keyframes rolate {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+#wrapper-audio .box-thumbnail .thumbnail {
+    width: 100%;
+    height: auto;
+}
+
+#wrapper-audio .story-desc .story-name {
+    font-size: 25px;
+    color: #fff;
+    padding: 10px 0px;
+    display: block;
+}
+
+#wrapper-audio .box-bar {
+    position: relative;
+    padding: 15px 0px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+#wrapper-audio .box-bar span {
+    font-size: 10px;
+    color: #fff;
+}
+
+#wrapper-audio .box-bar .bar {
+    width: 265px;
+    height: 5px;
+    background: #c7b5bb;
+    display: block;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+#wrapper-audio .box-bar .bar .status {
+    width: 0%;
+    height: 100%;
+    background: #8e44ad;
+    display: block;
+    border-radius: 2px;
+    position: relative;
+}
+
+#wrapper-audio .box-bar .bar .status::after {
+    content: "";
+    position: absolute;
+    padding: 4px;
+    right: 0px;
+    z-index: 1000;
+    background: #8e44ad;
+    top: -2px;
+    border-radius: 50%;
+    display: none;
+}
+
+#wrapper-audio .box-bar .bar:hover .status::after {
+    display: block;
+}
+
+#wrapper-audio .btn-function {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+#wrapper-audio .btn-function button {
+    color: #fff;
+    background: none;
+    border: none;
+    margin: 0px 15px;
+    cursor: pointer;
+    font-size: 25px;
+    outline: none;
+}
+
+#wrapper-audio .btn-function .btn-play {
+    font-size: 70px;
+}
+
+#wrapper-audio .btn-function .btn-repeat.none {
+    color: #b3a8a8;
+}
+
+#wrapper-audio .btn-function button.disable {
+    color: #b3a8a8;
+    cursor: not-allowed;
+}
+ </style>
+
+
     <div class="container" id="truyen">
         <div class="col-xs-12 col-sm-12 col-md-9 col-truyen-main">
             <div class="col-xs-12 col-info-desc" itemscope="" itemtype="http://schema.org/Book">
@@ -165,7 +551,7 @@ $link = "";
                         <div>
                             <h3>Nguồn Truyện:</h3> {!! $story->source !!}
                         </div>
-                        <a href="#" title="Play video" class="play">âsasas</a>
+    
                         @endif
                         <div>
                         <div class="navbar-social pull-left">
@@ -186,30 +572,53 @@ $link = "";
             					<a class="btn btn-default btn-xs" href="javascript:void(0)" title="Xem thêm">Xem thêm »</a>
             				</div>
 
-                    <?php
-                    $chapters = $story->chapters()->orderBy("id", "desc")->take(5)->get();
-                    if ($chapters) {
-                      echo '<div class="l-chapter"><div class="l-title"><h3>Các chương mới nhất</h3></div><ul class="l-chapters">';
-                      foreach($chapters as $chapter):
-                      ?>
-                      <li>
-                        <span class="glyphicon glyphicon-certificate"></span>
-                       <a href="{{ route('chapter.show', [$story->alias, $chapter->alias]) }}" title="{{ $story->name }} - {{ $chapter->subname }}: {{ $chapter->name }}">
-                            <span class="chapter-text">{{ $chapter->subname }}</span>: {{ $chapter->name }}  
-                        </a>
-                      <?php
-                          endforeach;
+                            <!-- play audio -->
+                            <div id="wrapper-audio">
+        <a href="javascript:void(0)" class="cd-rom box-thumbnail thumbnail-chapter">
+            <img src="{{ url($story->image) }}" class="thumbnail" alt="">
+        </a>
+        <div>
+            <div class="story-desc">
+                <a href="" class="story-name">{{ $story->name }}</a>
+            </div>
+        </div>
+        <div class="box-bar">
+            <span class="time-now">00:00</span>
+            <span class="bar">
+                <div class="status">
 
-                          echo '</ul></div>';
-                    }
-                    ?>
+                </div>
+            </span>
+            <span class="time-all">00:00</span>
+        </div>
+        <div class="box-btn btn-function">
+            <button class="btn-speaker material-icons">
+                volume_up
+            </button>
+            <button class="btn-prev material-icons">
+                    skip_previous
+            </button>
+            <!-- btn pause <i class="far fa-pause-circle"></i> -->
+            <button  class="btn-play pause material-icons">
+                    play_circle
+            </button>
+            <button class="btn-next material-icons">
+                    skip_next
+            </button>
+            <button class="btn-repeat material-icons">
+                    repeat
+            </button>
+        </div>
+    </div>
+
+  <!-- end play audio -->
                 </div>
             </div>
 
             <div class="ads container">
                 {!! \App\Option::getvalue('ads_story') !!}
             </div>
-
+           
             <div class="col-xs-12" id="list-chapter">
                 <div class="title-list"><h2>Danh sách chương</h2></div>
                 <div class="row">
@@ -223,10 +632,10 @@ $link = "";
                             <li>
                                 <span class="glyphicon glyphicon-certificate"></span>
                                 <a href="{{ route('chapter.show', [$story->alias, $chapter->alias]) }}" title="{{ $story->name }} - {{ $chapter->subname }}: {{ $chapter->name }}">
-                                    <span class="chapter-text"> {{ $chapter->subname }}</span>: {{ $chapter->name }} 
+                                    <span class="chapter-text"> {{ $chapter->subname }} 
                                 </a>
                              
-                            </li>
+                            </li> 
                     <?php
                         if($t == 25 || $count == $c){
                             $t = 0;
@@ -267,5 +676,4 @@ $link = "";
             {{--@include('widgets.ads')--}}
         </div>
     </div>
-
 @endsection
