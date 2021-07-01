@@ -105,7 +105,7 @@
                     $chapters = $story->chapters()->orderBy("id", "asc")->paginate(50);
                     foreach($chapters as $chapter):
                     ?>
-        { chapterId:<?php echo e($chapter->id); ?>, code: `<?php echo e($chapter->content); ?>`, audioName:`<?php echo nl2p($chapter->name, false); ?>`, thumbnail: `<?php echo e($story->image); ?>` },
+        { chapterId:<?php echo e($chapter->id); ?>, code: `<?php echo e($chapter->content); ?>`, audioName:`<?php echo e($chapter->subname); ?><?php echo nl2p($chapter->name, false); ?>`, thumbnail: `<?php echo e($story->image); ?>` },
     <?php endforeach;?>]                 
 };
 class AudioForm {
@@ -158,6 +158,10 @@ class AudioForm {
         const btnSpeaker = document.querySelector(".btn-speaker");
         // get btnRepeate
         const btnRepeate = document.querySelector(".btn-repeat");
+        //get btnChuong
+        const btnPlayChuong=document.querySelectorAll(".btn_play_chuong");
+        
+       
         // get thumbnail
         const thumbnail = cdRom.children[0];
         this.thumbnail = chapterMap.thumbnail || audios.chapters[0].thumbnail;
@@ -195,6 +199,8 @@ class AudioForm {
         }
         btnNext.onclick = nextAudio;
         btnPrev.onclick = prevAudio;
+        //chương
+      
         // on update time
         audioDom.addEventListener("timeupdate", function(e) {
             that.currentTime = e.target.currentTime;
@@ -226,6 +232,14 @@ class AudioForm {
                 btnNext.classList.add("disable");
             }
         }
+
+    
+    btnPlayChuong.forEach(e=>{
+        e.addEventListener("click",function(){
+            // setplay postion
+            setPostionAudio(this.getAttribute("data-index"));
+        })
+    })
         function nextAudio() {
             let positionAudio = that.positionAudio + 1;
             if (positionAudio >= that.chapterLength) {
@@ -324,7 +338,7 @@ class AudioForm {
         ];
     }
     convertCodeToUrl(code) {
-        return `${code}`
+        return `http://docs.google.com/uc?export=open&id=${code}`
     }
     formatTime($time) {
         let time = new Date($time * 1000);
@@ -585,7 +599,7 @@ body {
         </a>
         <div>
             <div class="story-desc">
-                <a href="" class="story-name"><?php echo e($story->name); ?></a>
+                <p href="" class="story-name"><?php echo e($story->name); ?></p>
             </div>
         </div>
         <div class="box-bar">
@@ -625,24 +639,25 @@ body {
                 <?php echo \App\Option::getvalue('ads_story'); ?>
 
             </div>
-           
+         
             <div class="col-xs-12" id="list-chapter">
                 <div class="title-list"><h2>Danh sách chương</h2></div>
                 <div class="row">
                     <?php
                     $t = 1; $c = 1;
                     $chapters = $story->chapters()->orderBy("id", "asc")->paginate(50);
-                    foreach($chapters as $chapter):
+                    foreach($chapters as $key => $chapter):
                         $count = count($chapters);
                         if($t == 1) echo ' <div class="col-xs-12 col-sm-6 col-md-6"><ul class="list-chapter">';
                     ?>
                             <li>
                                 <span class="glyphicon glyphicon-certificate"></span>
-                                <a href="<?php echo e(route('chapter.show', [$story->alias, $chapter->alias])); ?>" title="<?php echo e($story->name); ?> - <?php echo e($chapter->subname); ?>: <?php echo e($chapter->name); ?>">
-                                    <span class="chapter-text"> <?php echo e($chapter->subname); ?> 
-                                </a>
-                             
+                                <button class="btn_play_chuong"  data-index="<?php echo e($key); ?>"><?php echo e($chapter->subname); ?></button>
+                                <script>
+                               
+                                </script>
                             </li> 
+                          
                     <?php
                         if($t == 25 || $count == $c){
                             $t = 0;
@@ -685,5 +700,6 @@ body {
         </div>
     </div>
 <?php $__env->stopSection(); ?>
+
 
 <?php echo $__env->make('layouts.app', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
