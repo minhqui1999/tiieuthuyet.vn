@@ -452,6 +452,7 @@ body {
     color: #fff;
     padding: 10px 0px;
     display: block;
+    margin-left: 24px;
 }
 
 #wrapper-audio .box-bar {
@@ -531,6 +532,31 @@ body {
     color: #b3a8a8;
     cursor: not-allowed;
 }
+
+@media only screen and (max-width: 600px) {
+    #wrapper-audio .box-thumbnail {
+   
+    width: 100px;
+    height: 100px;
+    margin-left: -17px;
+}
+#wrapper-audio .box-bar .bar {
+    width: 155px;
+}
+#wrapper-audio .story-desc .story-name {
+    margin-left: -8px;
+    font-size: 17px;
+}
+#wrapper-audio .btn-function {
+    
+    margin-top: -166px;
+}
+#wrapper-audio .box-bar {
+    top: -168px;
+    margin-left: -26px;
+}
+  }
+}
  </style>
 
 
@@ -601,11 +627,11 @@ body {
             <img src="{{ url($story->image) }}" class="thumbnail" alt="">
         </a>
         </span>
-        <div>
+
             <div class="story-desc">
                 <p href="" class="story-name">{{ $story->name }}</p>
             </div>
-        </div>
+        
            
         
         <div class="box-bar">
