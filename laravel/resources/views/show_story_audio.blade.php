@@ -412,9 +412,9 @@ body {
 }
 
 #wrapper-audio {
-    width: 400px;
+    width: 135%;
     margin: 50px auto;
-    text-align: center;
+    text-align: start;
     background: linear-gradient(90deg, rgba(158, 97, 179, 1) 32%, rgba(13, 145, 172, 1) 97%);
     padding: 20px;
     border-radius: 5px;
@@ -422,8 +422,8 @@ body {
 
 #wrapper-audio .box-thumbnail {
     display: inline-block;
-    width: 250px;
-    height: 250px;
+    width: 159px;
+    height: 155px;
     overflow: hidden;
     border-radius: 50%;
     box-shadow: 0px 0px 10px #00000073;
@@ -444,6 +444,7 @@ body {
 #wrapper-audio .box-thumbnail .thumbnail {
     width: 100%;
     height: auto;
+    padding: 0px !important;
 }
 
 #wrapper-audio .story-desc .story-name {
@@ -458,8 +459,9 @@ body {
     padding: 15px 0px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     flex-wrap: wrap;
+    top:-190px;
 }
 
 #wrapper-audio .box-bar span {
@@ -468,7 +470,7 @@ body {
 }
 
 #wrapper-audio .box-bar .bar {
-    width: 265px;
+    width: 300px;
     height: 5px;
     background: #c7b5bb;
     display: block;
@@ -504,7 +506,7 @@ body {
 #wrapper-audio .btn-function {
     display: flex;
     justify-content: center;
-    margin-top: 20px;
+    margin-top: -150px;
 }
 
 #wrapper-audio .btn-function button {
@@ -586,23 +588,35 @@ body {
             					<a class="btn btn-default btn-xs" href="javascript:void(0)" title="Xem thêm">Xem thêm »</a>
             				</div>
 
-                            <!-- play audio -->
-                            <div id="wrapper-audio">
-        <a href="javascript:void(0)" class="cd-rom box-thumbnail thumbnail-chapter">
+                        
+                </div>
+            </div>
+
+            <div class="ads container">
+                {!! \App\Option::getvalue('ads_story') !!}
+            </div>
+                    <!-- play audio -->
+        <div id="wrapper-audio">
+           <span> <a href="javascript:void(0)" class="cd-rom box-thumbnail thumbnail-chapter">
             <img src="{{ url($story->image) }}" class="thumbnail" alt="">
         </a>
+        </span>
         <div>
             <div class="story-desc">
                 <p href="" class="story-name">{{ $story->name }}</p>
             </div>
         </div>
+           
+        
         <div class="box-bar">
             <span class="time-now">00:00</span>
+            &nbsp;&nbsp;
             <span class="bar">
                 <div class="status">
 
                 </div>
             </span>
+            &nbsp;&nbsp;
             <span class="time-all">00:00</span>
         </div>
         <div class="box-btn btn-function">
@@ -625,14 +639,7 @@ body {
         </div>
     </div>
 
-  <!-- end play audio -->
-                </div>
-            </div>
-
-            <div class="ads container">
-                {!! \App\Option::getvalue('ads_story') !!}
-            </div>
-         
+  <!-- end play audio -->   
             <div class="col-xs-12" id="list-chapter">
                 <div class="title-list"><h2>Danh sách chương</h2></div>
                 <div class="row">
@@ -645,7 +652,7 @@ body {
                     ?>
                             <li>
                                 <span class="glyphicon glyphicon-certificate"></span>
-                                <button class="btn_play_chuong"  data-index="{{ $key }}">{{ $chapter->subname }}</button>
+                                <button class="btn_play_chuong"  data-index="{{ $key }}">{{ $chapter->subname }} {{ $chapter->name }}</button>
                                 <script>
                                
                                 </script>
@@ -663,7 +670,12 @@ body {
 
                 {{ $chapters->fragment('list-chapter')->links() }}
 
+
                 </div>
+
+            
+                
+      
             <div>
                 <div class="col-xs-12">
                     <div class="title-list"><h2>Bình luận truyện</h2></div>
@@ -691,5 +703,6 @@ body {
             {{--@include('widgets.ads')--}}
         </div>
     </div>
+
 @endsection
 
